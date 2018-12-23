@@ -3,12 +3,12 @@ package ot.sequence;
 using Lambda;
 import ot.sequence.SequenceOp;
 
-class OpCursor<TElem> {
-  var ops: Iterator<SequenceOp<TElem>>;
+class OpCursor<TElem, TOp> {
+  var ops: Iterator<SequenceOp<TElem, TOp>>;
 
-  public var currentOp(default, null): SequenceOp<TElem>;
+  public var currentOp(default, null): SequenceOp<TElem, TOp>;
 
-  public function new(ops: SequenceOps<TElem>) {
+  public function new(ops: SequenceOps<TElem, TOp>) {
     this.ops = ops.iterator();
     this.getNextOp();
   }

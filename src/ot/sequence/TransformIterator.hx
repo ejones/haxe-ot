@@ -3,13 +3,13 @@ package ot.sequence;
 using Lambda;
 import ot.sequence.SequenceOp;
 
-class TransformIterator<TElem> {
-  var opCursor: OpCursor<TElem>;
-  var otherCursor: OpCursor<TElem>;
-  var nextOp: SequenceOp<TElem>;
+class TransformIterator<TElem, TOp> {
+  var opCursor: OpCursor<TElem, TOp>;
+  var otherCursor: OpCursor<TElem, TOp>;
+  var nextOp: SequenceOp<TElem, TOp>;
   var isBefore: Bool;
 
-  public function new(op: SequenceOps<TElem>, other: SequenceOps<TElem>, isBefore: Bool) {
+  public function new(op: SequenceOps<TElem, TOp>, other: SequenceOps<TElem, TOp>, isBefore: Bool) {
     this.opCursor = new OpCursor(op);
     this.otherCursor = new OpCursor(other);
     this.isBefore = isBefore;
@@ -28,15 +28,15 @@ class TransformIterator<TElem> {
         switch (otherCursor.currentOp) {
           case Skip(otherNum):
             switch (opCursor.currentOp) {
-              case Skip(num):
+              case Skip(num) | Delete(num):
                 opDelta = otherDelta = Math.floor(Math.min(num, otherNum));
-                nextOp = Skip(opDelta);
-              case Delete(num):
-                opDelta = otherDelta = Math.floor(Math.min(num, otherNum));
-                nextOp = Skip(opDelta);
+                nextOp = opCursor.currentOp;
               case Insert(elems):
                 opDelta = Constants.INT_MAX;
                 nextOp = Insert(elems);
+              case Apply(_, _):
+                opDelta = otherDelta = 1;
+                nextOp = opCursor.currentOp;
             }
           case Delete(otherNum):
             switch (opCursor.currentOp) {
@@ -47,6 +47,8 @@ class TransformIterator<TElem> {
               case Insert(elems):
                 opDelta = Constants.INT_MAX;
                 nextOp = Insert(elems);
+              case Apply(_, _):
+                opDelta = otherDelta = 1;
             }
           case Insert(otherElems):
             switch (opCursor.currentOp) {
@@ -56,6 +58,19 @@ class TransformIterator<TElem> {
               case _:
                 otherDelta = Constants.INT_MAX;
                 nextOp = Skip(otherElems.count());
+            }
+          case Apply(otherOp, otherOt):
+            switch (opCursor.currentOp) {
+              case Skip(_) | Delete(_):
+                opDelta = otherDelta = 1;
+                nextOp = opCursor.currentOp;
+              case Insert(elems):
+                opDelta = Constants.INT_MAX;
+                nextOp = Insert(elems);
+              case Apply(op, ot):
+                opDelta = otherDelta = 1;
+                var otToUse = isBefore ? otherOt : ot;
+                nextOp = Apply(otToUse.transform(op, otherOp, isBefore), otToUse);
             }
         }
       } else {

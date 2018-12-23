@@ -1,14 +1,15 @@
 package ot.sequence;
 
-class ApplyIterator<TElem> {
-  var ops: Iterator<SequenceOp<TElem>>;
+class ApplyIterator<TElem, TOp> {
+  var ops: Iterator<SequenceOp<TElem, TOp>>;
   var elems: Iterator<TElem>;
+
   var currentElems: Iterator<TElem> = null;
   var currentLimit = 0;
   var nextVal: TElem = null;
   var isDone = false;
 
-  public function new(elems: Iterable<TElem>, op: SequenceOps<TElem>) {
+  public function new(elems: Iterable<TElem>, op: SequenceOps<TElem, TOp>) {
     this.elems = elems.iterator();
     this.ops = op.iterator();
     this.findNext();
@@ -38,6 +39,19 @@ class ApplyIterator<TElem> {
             this.currentElems = elems.iterator();
             this.currentLimit = Constants.INT_MAX;
             break;
+
+          case Apply(op, ot):
+            this.currentElems = null;
+            this.currentLimit = 0;
+
+            if (this.elems.hasNext()) {
+              this.nextVal = ot.apply(this.elems.next(), op);
+            } else {
+              this.nextVal = null;
+              this.isDone = true;
+            }
+
+            return;
         }
       }
     }

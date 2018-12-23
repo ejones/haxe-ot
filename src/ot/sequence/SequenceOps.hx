@@ -1,3 +1,3 @@
 package ot.sequence;
 
-typedef SequenceOps<T> = Iterable<SequenceOp<T>>;
+typedef SequenceOps<TElem, TOp> = Iterable<SequenceOp<TElem, TOp>>;
