@@ -1,8 +1,7 @@
 package ot.sequence;
 
 class SequenceOT<TElem, TOp> implements ot.common.OT<Iterable<TElem>, SequenceOps<TElem, TOp>> {
-  function new() {}
-  public static var instance = new SequenceOT();
+  public function new() {}
 
   public function apply(snapshot: Iterable<TElem>, op: SequenceOps<TElem, TOp>): Iterable<TElem> {
     return new ApplyIterator(snapshot, op);

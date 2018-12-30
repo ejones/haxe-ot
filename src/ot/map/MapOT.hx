@@ -5,8 +5,7 @@ import ot.common.NamedValue;
 import ot.map.MapOpComponent;
 
 class MapOT<TValue, TOp> implements OT<Iterable<NamedValue<TValue>>, MapOp<TValue, TOp>> {
-  function new() {}
-  public static var instance = new MapOT();
+  public function new() {}
 
   public function apply(snapshot: Iterable<NamedValue<TValue>>, op: MapOp<TValue, TOp>): Iterable<NamedValue<TValue>> {
     return new ApplyIterator(snapshot, op);
