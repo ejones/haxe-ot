@@ -20,4 +20,8 @@ class JsonOpConverter {
 
     throw 'unrecognized type for JSON OP: $value';
   }
+
+#if python
+  public static function from_dict(v) return fromNative(v);
+#end
 }
